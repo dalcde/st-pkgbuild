@@ -4,7 +4,7 @@
 
 pkgname=st-git
 _pkgname=st
-pkgver=0.7.31.g7f99032
+pkgver=0.8.1.5.g235a783
 pkgrel=1
 pkgdesc='Simple virtual terminal emulator for X'
 url='http://st.suckless.org/'
@@ -15,8 +15,8 @@ depends=('libxft')
 makedepends=('ncurses' 'libxext' 'git')
 epoch=1
 # include config.h and any patches you want to have applied here
-source=('git://git.suckless.org/st' 'st-scrollback.diff' 'config.h' 'change-title.diff')
-sha1sums=('SKIP' 'SKIP' 'SKIP' 'SKIP')
+source=('git://git.suckless.org/st' 'st-scrollback.diff' 'config.h')
+sha1sums=('SKIP' 'SKIP' 'SKIP')
 
 provides=("${_pkgname}")
 conflicts=("${_pkgname}")
@@ -29,11 +29,11 @@ pkgver() {
 prepare() {
 	local file
 	cd "${_pkgname}"
-	sed \
-		-e '/char font/s/= .*/= "Fixed:pixelsize=13:style=SemiCondensed";/' \
-		-e '/char worddelimiters/s/= .*/= " '"'"'`\\\"()[]{}<>|";/' \
-		-e '/int defaultcs/s/= .*/= 1;/' \
-		-i config.def.h
+#	sed \
+#		-e '/char font/s/= .*/= "Fixed:pixelsize=13:style=SemiCondensed";/' \
+#		-e '/char worddelimiters/s/= .*/= " '"'"'`\\\"()[]{}<>|";/' \
+#		-e '/int defaultcs/s/= .*/= 1;/' \
+#		-i config.def.h
 	sed \
 		-e 's/CPPFLAGS =/CPPFLAGS +=/g' \
 		-e 's/CFLAGS =/CFLAGS +=/g' \
