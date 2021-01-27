@@ -1,66 +1,34 @@
-# Maintainer: mar77i <mar77i at mar77i dot ch>
-# Past Maintainer: Gaetan Bisson <bisson@archlinux.org>
-# Contributor: Scytrin dai Kinthra <scytrin@gmail.com>
-
-pkgname=st-git
-_pkgname=st
-pkgver=0.8.2.25.g3848301
+pkgname=st-own
+pkgver=0.8.4
 pkgrel=1
 pkgdesc='Simple virtual terminal emulator for X'
 url='http://st.suckless.org/'
 arch=('i686' 'x86_64')
 license=('MIT')
-options=('zipman')
 depends=('libxft')
-makedepends=('ncurses' 'libxext' 'git')
-epoch=1
-# include config.h and any patches you want to have applied here
-source=('git://git.suckless.org/st' 'st-scrollback.diff' 'config.h')
-sha1sums=('SKIP' 'SKIP' 'SKIP')
-
-provides=("${_pkgname}")
-conflicts=("${_pkgname}")
-
-pkgver() {
-	cd "${_pkgname}"
-	git describe --tags |sed 's/-/./g'
-}
+source=(https://dl.suckless.org/st/st-$pkgver.tar.gz
+        https://st.suckless.org/patches/scrollback/st-scrollback-$pkgver.diff
+        config.h)
+sha256sums=('d42d3ceceb4d6a65e32e90a5336e3d446db612c3fbd9ebc1780bc6c9a03346a6'
+            '418e1c5df11105482f13a008218c89eadb974630c25b4a6ff3da763dc2560e44'
+            'SKIP')
+_sourcedir=st-$pkgver
 
 prepare() {
-	local file
-	cd "${_pkgname}"
-#	sed \
-#		-e '/char font/s/= .*/= "Fixed:pixelsize=13:style=SemiCondensed";/' \
-#		-e '/char worddelimiters/s/= .*/= " '"'"'`\\\"()[]{}<>|";/' \
-#		-e '/int defaultcs/s/= .*/= 1;/' \
-#		-i config.def.h
-	sed \
-		-e 's/CPPFLAGS =/CPPFLAGS +=/g' \
-		-e 's/CFLAGS =/CFLAGS +=/g' \
-		-e 's/LDFLAGS =/LDFLAGS +=/g' \
-		-e 's/_BSD_SOURCE/_DEFAULT_SOURCE/' \
-		-i config.mk
-	sed '/@tic/d' -i Makefile
-	for file in "${source[@]}"; do
-		if [[ "$file" == "config.h" ]]; then
-			# add config.h if present in source array
-			# Note: this supersedes the above sed to config.def.h
-			cp "$srcdir/$file" .
-		elif [[ "$file" == *.diff || "$file" == *.patch ]]; then
-			# add all patches present in source array
-			patch -Np1 <"$srcdir/$(basename ${file})"
-		fi
-	done
+  cd "$_sourcedir"
+  sed -i '/^\ttic/d' Makefile
+  cp "$srcdir/config.h" .
+  patch -Np1 <"$srcdir/"*.diff
 }
 
 build() {
-	cd "${_pkgname}"
-	make X11INC=/usr/include/X11 X11LIB=/usr/lib/X11
+  cd "$_sourcedir"
+  make X11INC=/usr/include/X11 X11LIB=/usr/lib/X11
 }
 
 package() {
-	cd "${_pkgname}"
-	make PREFIX=/usr DESTDIR="${pkgdir}" install
-	install -Dm644 LICENSE "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
-	install -Dm644 README "${pkgdir}/usr/share/doc/${pkgname}/README"
+  cd "$_sourcedir"
+  make PREFIX=/usr DESTDIR="${pkgdir}" install
+  install -Dm644 LICENSE "${pkgdir}/usr/share/licenses/st/LICENSE"
+  install -Dm644 README "${pkgdir}/usr/share/doc/st/README"
 }
